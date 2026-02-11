@@ -4,7 +4,7 @@ A Chrome extension that converts the AI-slop your collegues routinely send you i
 
 ## What does it do?
 
-*It's 2PM. Mark keep sending you messages that consist of perfectly aligned bullet points, set of well-crafted emojis, bolded text for clever emphasis and flawless grammar. This looks good, except when you last talked to Mark, you get something like "dunno mate, i guess we better do something bout that prezentation right" at best.*
+*It's 2PM. Mark keeps sending you messages that consist of perfectly aligned bullet points, set of well-crafted emojis, bolded text for clever emphasis and flawless grammar. This looks good, except when you last talked to Mark, you get something like "dunno mate, i guess we better do something bout that prezentation right" at best.*
 
 *You miss the old Mark...*
 
