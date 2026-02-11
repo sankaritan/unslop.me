@@ -32,7 +32,7 @@ export interface Settings {
 export const DEFAULT_PERSONA: Persona = {
   id: 'default',
   name: 'Generic Unslop',
-  emoji: '🧹',
+  emoji: 'casual',
   tonePresets: ['casual'],
   customInstructions: '',
   createdAt: 0,

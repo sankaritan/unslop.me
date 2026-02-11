@@ -42,23 +42,23 @@ export function ToneChips({ selected, onChange }: Props) {
 const styles: Record<string, preact.JSX.CSSProperties> = {
   container: {
     display: 'flex',
-    gap: '6px',
+    gap: '8px',
     flexWrap: 'wrap' as const,
   },
   chip: {
-    padding: '6px 14px',
-    borderRadius: '16px',
-    border: '1px solid #2a2a4a',
-    background: '#16162a',
-    color: '#8b8bbd',
+    padding: '8px 16px',
+    borderRadius: '20px',
+    border: '2px solid #C8AAAA',
+    background: 'white',
+    color: '#9F8383',
     cursor: 'pointer',
     fontSize: '13px',
-    fontWeight: '500',
-    transition: 'all 0.15s ease',
+    fontWeight: '600',
+    transition: 'all 0.2s ease',
   },
   chipActive: {
-    background: '#4a4ae0',
-    borderColor: '#4a4ae0',
+    background: '#574964',
+    borderColor: '#574964',
     color: '#fff',
   },
 };

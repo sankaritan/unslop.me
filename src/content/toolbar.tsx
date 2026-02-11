@@ -1,4 +1,5 @@
 import type { Persona } from '../shared/types';
+import { PERSONA_ICONS } from '../popup/components/persona-icons';
 
 interface Props {
   personas: Persona[];
@@ -23,94 +24,103 @@ export function Toolbar({ personas, position, onSelect }: Props) {
       }}
     >
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap');
+        
         .unslop-toolbar {
           display: flex;
           align-items: center;
-          gap: 2px;
-          padding: 4px 6px;
-          background: #1a1a2e;
-          border: 1px solid #2a2a4a;
-          border-radius: 12px;
-          box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+          gap: 4px;
+          padding: 6px 10px;
+          background: #F5F1ED;
+          border: 3px solid #C8AAAA;
+          border-radius: 16px;
+          box-shadow: 0 4px 24px rgba(87, 73, 100, 0.2);
           animation: unslop-fadein 0.15s ease-out;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         .unslop-toolbar-btn {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 36px;
-          height: 36px;
+          width: 44px;
+          height: 44px;
           border: none;
-          background: transparent;
-          border-radius: 8px;
+          background: white;
+          border: 2px solid #C8AAAA;
+          border-radius: 12px;
           cursor: pointer;
-          font-size: 22px;
-          transition: background 0.1s ease, transform 0.1s ease;
+          transition: all 0.2s ease;
           position: relative;
-          line-height: 1;
-          padding: 0;
+          padding: 6px;
         }
         .unslop-toolbar-btn:hover {
-          background: #2a2a4a;
-          transform: scale(1.1);
+          background: #FFDAB3;
+          border-color: #9F8383;
+          transform: scale(1.08);
         }
         .unslop-toolbar-btn:active {
           transform: scale(0.95);
         }
+        .unslop-toolbar-icon {
+          width: 100%;
+          height: 100%;
+        }
         .unslop-toolbar-tooltip {
           position: absolute;
-          bottom: calc(100% + 6px);
+          bottom: calc(100% + 8px);
           left: 50%;
           transform: translateX(-50%);
-          padding: 4px 10px;
-          background: #0d0d1a;
-          border: 1px solid #2a2a4a;
-          border-radius: 6px;
-          color: #c0c0e0;
-          font-size: 11px;
+          padding: 6px 12px;
+          background: #574964;
+          border-radius: 8px;
+          color: white;
+          font-size: 12px;
           white-space: nowrap;
           pointer-events: none;
           opacity: 0;
-          transition: opacity 0.15s ease;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          transition: opacity 0.2s ease;
+          font-weight: 600;
+          box-shadow: 0 4px 12px rgba(87, 73, 100, 0.3);
         }
         .unslop-toolbar-btn:hover .unslop-toolbar-tooltip {
           opacity: 1;
         }
         .unslop-toolbar-divider {
-          width: 1px;
-          height: 24px;
-          background: #2a2a4a;
-          margin: 0 2px;
+          width: 2px;
+          height: 28px;
+          background: #C8AAAA;
+          margin: 0 4px;
         }
         @keyframes unslop-fadein {
           from { opacity: 0; transform: translateY(4px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .unslop-toolbar-label {
-          font-size: 10px;
-          color: #6b6b9a;
-          padding: 0 6px;
+          font-size: 11px;
+          color: #574964;
+          padding: 0 8px;
           text-transform: uppercase;
           letter-spacing: 0.5px;
-          font-weight: 600;
+          font-weight: 700;
           user-select: none;
         }
       `}</style>
       <div class="unslop-toolbar">
         <span class="unslop-toolbar-label">Unslop</span>
         <div class="unslop-toolbar-divider" />
-        {personas.map((persona) => (
-          <button
-            key={persona.id}
-            class="unslop-toolbar-btn"
-            onClick={(e) => { e.stopPropagation(); onSelect(persona); }}
-          >
-            {persona.emoji}
-            <span class="unslop-toolbar-tooltip">{persona.name}</span>
-          </button>
-        ))}
+        {personas.map((persona) => {
+          const icon = PERSONA_ICONS.find(i => i.id === persona.emoji) || PERSONA_ICONS[0];
+          return (
+            <button
+              key={persona.id}
+              class="unslop-toolbar-btn"
+              onClick={(e) => { e.stopPropagation(); onSelect(persona); }}
+            >
+              <div class="unslop-toolbar-icon">{icon.svg}</div>
+              <span class="unslop-toolbar-tooltip">{persona.name}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

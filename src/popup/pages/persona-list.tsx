@@ -2,6 +2,7 @@ import { useState, useEffect } from 'preact/hooks';
 import * as preact from 'preact';
 import type { Persona } from '../../shared/types';
 import { getPersonas, deletePersona } from '../../shared/storage';
+import { PERSONA_ICONS } from '../components/persona-icons';
 
 interface Props {
   onSettings: () => void;
@@ -47,57 +48,64 @@ export function PersonaList({ onSettings, onAdd, onEdit }: Props) {
       </div>
 
       <div style={styles.list}>
-        {personas.map((persona) => (
-          <div key={persona.id} style={styles.card}>
-            <div style={styles.cardLeft}>
-              <span style={styles.emoji}>{persona.emoji}</span>
-              <div style={styles.cardInfo}>
-                <div style={styles.cardName}>
-                  {persona.name}
-                  {persona.id === 'default' && (
-                    <span style={styles.badge}>Default</span>
+        {personas.map((persona) => {
+          const icon = PERSONA_ICONS.find(i => i.id === persona.emoji) || PERSONA_ICONS[0];
+          return (
+            <div key={persona.id} style={styles.card}>
+              <div style={styles.cardLeft}>
+                <div style={styles.iconContainer}>{icon.svg}</div>
+                <div style={styles.cardInfo}>
+                  <div style={styles.cardName}>
+                    {persona.name}
+                    {persona.id === 'default' && (
+                      <span style={styles.badge}>Default</span>
+                    )}
+                  </div>
+                  {persona.tonePresets.length > 0 && (
+                    <div style={styles.toneRow}>
+                      {persona.tonePresets.map((t) => (
+                        <span key={t} style={styles.tonePill}>{t}</span>
+                      ))}
+                    </div>
                   )}
                 </div>
-                {persona.tonePresets.length > 0 && (
-                  <div style={styles.toneRow}>
-                    {persona.tonePresets.map((t) => (
-                      <span key={t} style={styles.tonePill}>{t}</span>
-                    ))}
-                  </div>
+              </div>
+              <div style={styles.cardActions}>
+                <button onClick={() => onEdit(persona)} style={styles.actionBtn} title="Edit">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M11.5 1.5L14.5 4.5L5 14H2V11L11.5 1.5Z" stroke="#9F8383" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                {persona.id !== 'default' && (
+                  confirmingDelete === persona.id ? (
+                    <div style={styles.confirmRow}>
+                      <button
+                        onClick={() => handleDelete(persona.id)}
+                        style={styles.confirmYes}
+                        title="Confirm delete"
+                      >
+                        Yes
+                      </button>
+                      <button
+                        onClick={() => setConfirmingDelete(null)}
+                        style={styles.confirmNo}
+                        title="Cancel"
+                      >
+                        No
+                      </button>
+                    </div>
+                  ) : (
+                    <button onClick={() => handleDelete(persona.id)} style={styles.actionBtn} title="Delete">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M3 4H13M5 4V3C5 2.5 5.5 2 6 2H10C10.5 2 11 2.5 11 3V4M6 7V12M10 7V12M4 4L5 13C5 13.5 5.5 14 6 14H10C10.5 14 11 13.5 11 13L12 4" stroke="#9F8383" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  )
                 )}
               </div>
             </div>
-            <div style={styles.cardActions}>
-              <button onClick={() => onEdit(persona)} style={styles.actionBtn} title="Edit">
-                ✏️
-              </button>
-              {persona.id !== 'default' && (
-                confirmingDelete === persona.id ? (
-                  <div style={styles.confirmRow}>
-                    <button
-                      onClick={() => handleDelete(persona.id)}
-                      style={styles.confirmYes}
-                      title="Confirm delete"
-                    >
-                      Yes
-                    </button>
-                    <button
-                      onClick={() => setConfirmingDelete(null)}
-                      style={styles.confirmNo}
-                      title="Cancel"
-                    >
-                      No
-                    </button>
-                  </div>
-                ) : (
-                  <button onClick={() => handleDelete(persona.id)} style={styles.actionBtn} title="Delete">
-                    🗑️
-                  </button>
-                )
-              )}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <button onClick={onAdd} style={styles.addBtn}>
@@ -117,49 +125,56 @@ const styles: Record<string, preact.JSX.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '16px 16px 8px',
+    padding: '20px 20px 12px',
   },
   headerLeft: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: '10px',
   },
   logo: {
-    fontSize: '24px',
+    fontSize: '28px',
   },
   title: {
-    fontSize: '20px',
+    fontSize: '24px',
     fontWeight: '700',
-    color: '#e0e0e0',
+    color: '#574964',
   },
   settingsBtn: {
-    background: 'none',
-    border: 'none',
-    fontSize: '20px',
+    background: 'white',
+    border: '2px solid #C8AAAA',
+    fontSize: '18px',
     cursor: 'pointer',
-    padding: '4px',
-    borderRadius: '6px',
+    padding: '8px',
+    borderRadius: '10px',
+    width: '36px',
+    height: '36px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.2s ease',
   },
   subtitle: {
-    padding: '0 16px 16px',
-    fontSize: '12px',
-    color: '#6b6b9a',
-    borderBottom: '1px solid #2a2a4a',
+    padding: '0 20px 16px',
+    fontSize: '13px',
+    color: '#9F8383',
+    borderBottom: '2px solid #C8AAAA',
   },
   list: {
     flex: 1,
     overflowY: 'auto' as const,
-    padding: '8px 16px',
+    padding: '12px 20px',
   },
   card: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '12px',
-    margin: '6px 0',
-    background: '#16162a',
-    borderRadius: '10px',
-    border: '1px solid #2a2a4a',
+    padding: '14px',
+    margin: '8px 0',
+    background: 'white',
+    borderRadius: '14px',
+    border: '2px solid #C8AAAA',
+    transition: 'all 0.2s ease',
   },
   cardLeft: {
     display: 'flex',
@@ -168,92 +183,100 @@ const styles: Record<string, preact.JSX.CSSProperties> = {
     flex: 1,
     minWidth: 0,
   },
-  emoji: {
-    fontSize: '28px',
+  iconContainer: {
+    width: '40px',
+    height: '40px',
     flexShrink: 0,
   },
   cardInfo: {
     minWidth: 0,
   },
   cardName: {
-    fontSize: '14px',
-    fontWeight: '500',
-    color: '#e0e0e0',
+    fontSize: '15px',
+    fontWeight: '600',
+    color: '#574964',
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
   },
   badge: {
     fontSize: '10px',
-    padding: '2px 6px',
-    background: '#2a2a4a',
-    borderRadius: '4px',
-    color: '#8b8bbd',
+    padding: '3px 8px',
+    background: '#FFDAB3',
+    borderRadius: '6px',
+    color: '#574964',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.5px',
-    fontWeight: '600',
+    fontWeight: '700',
   },
   toneRow: {
     display: 'flex',
-    gap: '4px',
-    marginTop: '4px',
+    gap: '6px',
+    marginTop: '6px',
     flexWrap: 'wrap' as const,
   },
   tonePill: {
-    fontSize: '10px',
-    padding: '2px 8px',
-    background: '#252545',
-    borderRadius: '10px',
-    color: '#7b7beb',
+    fontSize: '11px',
+    padding: '3px 10px',
+    background: '#F5F1ED',
+    borderRadius: '12px',
+    color: '#9F8383',
     textTransform: 'capitalize' as const,
+    fontWeight: '600',
   },
   cardActions: {
     display: 'flex',
-    gap: '4px',
+    gap: '6px',
     flexShrink: 0,
     alignItems: 'center',
   },
   actionBtn: {
-    background: 'none',
-    border: 'none',
+    background: '#F5F1ED',
+    border: '2px solid transparent',
     cursor: 'pointer',
-    fontSize: '14px',
-    padding: '4px 6px',
-    borderRadius: '6px',
-    opacity: 0.6,
+    padding: '8px',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.2s ease',
   },
   confirmRow: {
     display: 'flex',
-    gap: '4px',
+    gap: '6px',
   },
   confirmYes: {
-    padding: '2px 8px',
-    background: '#4a1a1a',
-    border: '1px solid #6a2a2a',
-    borderRadius: '4px',
-    color: '#f87171',
+    padding: '6px 12px',
+    background: '#FFE5E5',
+    border: '2px solid #FF6B6B',
+    borderRadius: '8px',
+    color: '#FF6B6B',
     cursor: 'pointer',
-    fontSize: '11px',
-    fontWeight: '600',
+    fontSize: '12px',
+    fontWeight: '700',
+    transition: 'all 0.2s ease',
   },
   confirmNo: {
-    padding: '2px 8px',
-    background: '#16162a',
-    border: '1px solid #2a2a4a',
-    borderRadius: '4px',
-    color: '#8b8bbd',
+    padding: '6px 12px',
+    background: 'white',
+    border: '2px solid #C8AAAA',
+    borderRadius: '8px',
+    color: '#9F8383',
     cursor: 'pointer',
-    fontSize: '11px',
+    fontSize: '12px',
+    fontWeight: '600',
+    transition: 'all 0.2s ease',
   },
   addBtn: {
-    margin: '8px 16px 16px',
-    padding: '12px',
-    background: '#4a4ae0',
+    margin: '8px 20px 20px',
+    padding: '14px',
+    background: '#574964',
     color: '#fff',
     border: 'none',
-    borderRadius: '10px',
+    borderRadius: '12px',
     cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: '600',
+    fontSize: '15px',
+    fontWeight: '700',
+    transition: 'all 0.2s ease',
   },
 };

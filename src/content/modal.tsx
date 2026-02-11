@@ -1,5 +1,6 @@
 import { useState } from 'preact/hooks';
 import type { Persona } from '../shared/types';
+import { PERSONA_ICONS } from '../popup/components/persona-icons';
 
 interface Props {
   persona: Persona | null;
@@ -12,6 +13,7 @@ interface Props {
 
 export function Modal({ persona, text, done, error, onClose, onRetry }: Props) {
   const [copied, setCopied] = useState(false);
+  const icon = persona ? (PERSONA_ICONS.find(i => i.id === persona.emoji) || PERSONA_ICONS[0]) : PERSONA_ICONS[0];
 
   const handleCopy = async () => {
     try {
@@ -34,97 +36,103 @@ export function Modal({ persona, text, done, error, onClose, onRetry }: Props) {
   return (
     <div>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap');
+        
         .unslop-overlay {
           position: fixed;
           top: 0;
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.6);
+          background: rgba(87, 73, 100, 0.5);
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 2147483647;
           animation: unslop-overlay-in 0.2s ease-out;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           pointer-events: auto;
         }
         .unslop-modal {
-          background: #1a1a2e;
-          border: 1px solid #2a2a4a;
-          border-radius: 16px;
+          background: #F5F1ED;
+          border: 3px solid #C8AAAA;
+          border-radius: 20px;
           width: 560px;
           max-width: 90vw;
           max-height: 80vh;
           display: flex;
           flex-direction: column;
-          box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+          box-shadow: 0 24px 64px rgba(87, 73, 100, 0.3);
           animation: unslop-modal-in 0.25s ease-out;
         }
         .unslop-modal-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 16px 20px;
-          border-bottom: 1px solid #2a2a4a;
+          padding: 20px 24px;
+          border-bottom: 2px solid #C8AAAA;
         }
         .unslop-modal-persona {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
         }
-        .unslop-modal-emoji {
-          font-size: 28px;
-          line-height: 1;
+        .unslop-modal-icon {
+          width: 40px;
+          height: 40px;
         }
         .unslop-modal-name {
-          font-size: 15px;
-          font-weight: 600;
-          color: #e0e0e0;
+          font-size: 16px;
+          font-weight: 700;
+          color: #574964;
         }
         .unslop-modal-status {
-          font-size: 11px;
-          color: #6b6b9a;
+          font-size: 12px;
+          color: #9F8383;
           margin-top: 2px;
+          font-weight: 600;
         }
         .unslop-modal-close {
-          width: 32px;
-          height: 32px;
+          width: 36px;
+          height: 36px;
           border: none;
-          background: #16162a;
-          border-radius: 8px;
-          color: #6b6b9a;
+          background: white;
+          border: 2px solid #C8AAAA;
+          border-radius: 10px;
+          color: #9F8383;
           cursor: pointer;
           font-size: 18px;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: background 0.15s ease, color 0.15s ease;
+          transition: all 0.2s ease;
           line-height: 1;
           padding: 0;
+          font-weight: 700;
         }
         .unslop-modal-close:hover {
-          background: #2a2a4a;
-          color: #e0e0e0;
+          background: #FFDAB3;
+          color: #574964;
         }
         .unslop-modal-body {
           flex: 1;
           overflow-y: auto;
-          padding: 20px;
+          padding: 24px;
           min-height: 120px;
         }
         .unslop-modal-text {
           font-size: 15px;
           line-height: 1.7;
-          color: #d0d0e8;
+          color: #574964;
           white-space: pre-wrap;
           word-wrap: break-word;
+          font-weight: 500;
         }
         .unslop-modal-cursor {
           display: inline-block;
           width: 2px;
           height: 18px;
-          background: #7b7beb;
+          background: #574964;
           margin-left: 2px;
           vertical-align: text-bottom;
           animation: unslop-blink 0.8s step-end infinite;
@@ -132,74 +140,76 @@ export function Modal({ persona, text, done, error, onClose, onRetry }: Props) {
         .unslop-modal-loading {
           display: flex;
           align-items: center;
-          gap: 8px;
-          color: #6b6b9a;
+          gap: 10px;
+          color: #9F8383;
           font-size: 14px;
+          font-weight: 600;
         }
         .unslop-modal-dots {
           display: flex;
-          gap: 4px;
+          gap: 6px;
         }
         .unslop-modal-dots span {
           display: inline-block;
-          width: 6px;
-          height: 6px;
-          background: #4a4ae0;
+          width: 8px;
+          height: 8px;
+          background: #574964;
           border-radius: 50%;
           animation: unslop-bounce 1.2s ease-in-out infinite;
         }
         .unslop-modal-dots span:nth-child(2) { animation-delay: 0.15s; }
         .unslop-modal-dots span:nth-child(3) { animation-delay: 0.3s; }
         .unslop-modal-error {
-          padding: 14px 16px;
-          background: #2a1020;
-          border: 1px solid #4a2030;
-          border-radius: 10px;
-          color: #f87171;
-          font-size: 13px;
-          line-height: 1.5;
+          padding: 16px 18px;
+          background: #FFEBEE;
+          border: 2px solid #E57373;
+          border-radius: 12px;
+          color: #C62828;
+          font-size: 14px;
+          line-height: 1.6;
+          font-weight: 600;
         }
         .unslop-modal-footer {
           display: flex;
           align-items: center;
           justify-content: flex-end;
-          gap: 8px;
-          padding: 12px 20px;
-          border-top: 1px solid #2a2a4a;
+          gap: 10px;
+          padding: 16px 24px;
+          border-top: 2px solid #C8AAAA;
         }
         .unslop-modal-btn {
-          padding: 8px 20px;
+          padding: 10px 24px;
           border: none;
-          border-radius: 8px;
+          border-radius: 10px;
           cursor: pointer;
-          font-size: 13px;
-          font-weight: 500;
-          transition: all 0.15s ease;
+          font-size: 14px;
+          font-weight: 700;
+          transition: all 0.2s ease;
           font-family: inherit;
         }
         .unslop-modal-btn-copy {
-          background: #4a4ae0;
+          background: #574964;
           color: #fff;
         }
         .unslop-modal-btn-copy:hover {
-          background: #5a5af0;
+          background: #6a5a78;
         }
         .unslop-modal-btn-copy:disabled {
           opacity: 0.4;
           cursor: not-allowed;
         }
         .unslop-modal-btn-copied {
-          background: #2a6a3a;
-          color: #4ade80;
+          background: #81C784;
+          color: #1B5E20;
         }
         .unslop-modal-btn-retry {
-          background: #16162a;
-          border: 1px solid #2a2a4a;
-          color: #8b8bbd;
+          background: white;
+          border: 2px solid #C8AAAA;
+          color: #9F8383;
         }
         .unslop-modal-btn-retry:hover {
-          background: #2a2a4a;
-          color: #e0e0e0;
+          background: #FFDAB3;
+          color: #574964;
         }
         @keyframes unslop-overlay-in {
           from { opacity: 0; }
@@ -221,7 +231,7 @@ export function Modal({ persona, text, done, error, onClose, onRetry }: Props) {
         <div class="unslop-modal">
           <div class="unslop-modal-header">
             <div class="unslop-modal-persona">
-              <span class="unslop-modal-emoji">{persona?.emoji || '🧹'}</span>
+              <div class="unslop-modal-icon">{icon.svg}</div>
               <div>
                 <div class="unslop-modal-name">{persona?.name || 'Unslopping'}</div>
                 <div class="unslop-modal-status">
