@@ -17,9 +17,10 @@ Highlight any text on any webpage, pick a persona you've created for your colleg
 - 🎭 **Custom Personas** — Create personas that match how specific people actually write (with tone presets and custom style instructions)
 - 🚀 **Works Everywhere** — Select text on any webpage (Slack, Teams, Google Docs, emails, etc.)
 - ⚡ **Streaming Responses** — See text appear in real-time as the AI generates it
-- 🎨 **Clean UI** — Dark-themed floating toolbar and modal that never conflicts with page styles (Shadow DOM isolation)
+- 🎨 **Clean UI** — Light-themed floating toolbar and modal with friendly design (Shadow DOM isolation)
 - 🆓 **Free Tier Friendly** — Uses Gemini 2.0 Flash (15 requests/min, 1500/day on free tier)
 - 📋 **One-Click Copy** — Instantly copy the humanized text to clipboard
+- 🧪 **Test Mode** — Toggle mock responses for UI testing without consuming API credits
 
 ---
 
@@ -137,7 +138,8 @@ unslop/
 │   │   ├── types.ts                # TypeScript interfaces
 │   │   ├── storage.ts              # Chrome storage wrapper
 │   │   ├── gemini-api.ts           # Gemini API client (streaming)
-│   │   └── prompts.ts              # Prompt templates
+│   │   ├── prompts.ts              # Prompt templates
+│   │   └── mock-responses.ts       # Mock streaming for test mode
 │   └── manifest.json               # Chrome extension manifest
 ├── public/
 │   └── icons/                      # Extension icons
