@@ -1,12 +1,16 @@
-# 🧹 Unslop
+# 🧹 Unslop.me
 
-A Chrome extension that humanizes AI-generated text to sound like real people — with customizable personas.
+A Chrome extension that converts the AI-slop your collegues routinely send you in work chat to something they would actually say IRL.
 
 ## What does it do?
 
-Tired of reading obviously AI-written messages from colleagues? Unslop converts corporate buzzword-laden, ChatGPT-flavored text into natural, human-sounding language. 
+*It's 2PM. Mark keep sending you messages that consist of perfectly aligned bullet points, set of well-crafted emojis, bolded text for clever emphasis and flawless grammar. This looks good, except when you last talked to Mark, you get something like "dunno mate, i guess we better do something bout that prezentation right" at best.*
 
-Highlight any text on any webpage, pick a persona (or use the default "Generic Unslop"), and instantly get a more natural version — powered by Google's Gemini 2.0 Flash.
+*You miss the old Mark...*
+
+Not to worry, now you can create Mark's persona and unslop his perfect, corporate buzzword-laden, ChatGPT-flavored messages back to its original glorious form.
+
+Highlight any text on any webpage, pick a persona you've created for your collegues (or use the default "Generic Unslop"), and instantly get a more natural version — powered by Google's Gemini Flash. Create your own Google API key and save it to settings.
 
 ### Features
 
@@ -214,18 +218,7 @@ Then add the label in `TONE_PRESET_LABELS`.
 
 ## 📝 API Usage & Costs
 
-This extension uses **Google Gemini 2.0 Flash** via the Gemini API.
-
-### Free Tier Limits (as of 2024)
-- **15 requests per minute**
-- **1,500 requests per day**
-- **1 million tokens per minute**
-
-Each "unslop" operation = 1 request. Average message unslopping uses ~100-300 tokens.
-
-**Estimated free tier capacity:** ~1,500 unsloppings per day
-
-Get your free API key: [Google AI Studio](https://aistudio.google.com/apikey)
+This extension uses **Google Gemini 3.0 Flash** via the Gemini API.
 
 ---
 
@@ -254,20 +247,6 @@ Get your free API key: [Google AI Studio](https://aistudio.google.com/apikey)
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-### Areas for improvement
-- [ ] Add keyboard shortcuts (e.g., Ctrl+Shift+U to trigger toolbar)
-- [ ] Support for longer texts (chunking for documents)
-- [ ] History/cache of recent unsloppings
-- [ ] Export/import persona configurations
-- [ ] Support for other LLM providers (OpenAI, Anthropic, etc.)
-- [ ] Firefox & Safari support
-
----
-
 ## 📄 License
 
 MIT License - see LICENSE file for details
@@ -280,6 +259,3 @@ MIT License - see LICENSE file for details
 - Uses [Google Gemini API](https://ai.google.dev/gemini-api/docs)
 - Inspired by the need to make AI-generated text sound human again
 
----
-
-**Made with frustration** 😤 **at overly corporate AI text**
