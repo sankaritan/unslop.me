@@ -62,6 +62,23 @@ Highlight any text on any webpage, pick a persona you've created for your colleg
    - Paste your [Google AI Studio API key](https://aistudio.google.com/apikey)
    - Click **Validate & Save**
 
+### 🧪 Test Mode (Development)
+
+Want to test the UI without consuming API credits?
+
+1. Open Settings (⚙️ icon in the extension popup)
+2. Scroll to the **Test Mode** section
+3. Toggle **Enable Test Mode**
+4. A warning appears: "⚠️ Test mode is active - API calls are disabled"
+
+When test mode is enabled:
+- No API calls are made to Gemini
+- Mock responses stream character-by-character with realistic delays
+- Perfect for testing UI, animations, and extension logic
+- Unlimited requests - no rate limits or costs
+
+To disable, simply toggle it off in Settings.
+
 ---
 
 ## 🎯 How to Use

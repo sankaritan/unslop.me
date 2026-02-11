@@ -27,6 +27,7 @@ export const TONE_PRESET_DESCRIPTIONS: Record<TonePreset, string> = {
 export interface Settings {
   apiKey: string;
   apiKeyValid: boolean;
+  testMode: boolean;
 }
 
 export const DEFAULT_PERSONA: Persona = {

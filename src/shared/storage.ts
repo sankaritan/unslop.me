@@ -55,7 +55,7 @@ export async function getPersonaById(id: string): Promise<Persona | undefined> {
 
 export async function getSettings(): Promise<Settings> {
   const result = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
-  return result[STORAGE_KEYS.SETTINGS] as Settings || { apiKey: '', apiKeyValid: false };
+  return result[STORAGE_KEYS.SETTINGS] as Settings || { apiKey: '', apiKeyValid: false, testMode: false };
 }
 
 export async function setSettings(settings: Settings): Promise<void> {

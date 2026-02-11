@@ -1,6 +1,7 @@
 import { getSettings, getPersonaById } from '../shared/storage';
 import { buildPrompt } from '../shared/prompts';
 import { validateApiKey, streamGenerate } from '../shared/gemini-api';
+import { mockStreamResponse } from '../shared/mock-responses';
 import type { BackgroundMessage, ValidateKeyResponse } from '../shared/types';
 
 // Handle long-lived connections for streaming
@@ -11,6 +12,24 @@ chrome.runtime.onConnect.addListener((port) => {
     if (msg.type === 'UNSLOP') {
       try {
         const settings = await getSettings();
+
+        // Check if test mode is enabled
+        if (settings.testMode) {
+          // Use mock streaming response
+          const generator = mockStreamResponse(msg.text);
+          for await (const char of generator) {
+            try {
+              port.postMessage({ type: 'STREAM_CHUNK', text: char });
+            } catch {
+              // Port closed, stop streaming
+              break;
+            }
+          }
+          try {
+            port.postMessage({ type: 'STREAM_DONE' });
+          } catch { /* port closed */ }
+          return;
+        }
 
         if (!settings.apiKey) {
           port.postMessage({ type: 'STREAM_ERROR', error: 'No API key configured. Click the Unslop extension icon to set one up.' });

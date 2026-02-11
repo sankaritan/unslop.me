@@ -10,12 +10,14 @@ interface Props {
 export function SettingsPage({ onBack }: Props) {
   const [apiKey, setApiKey] = useState('');
   const [showKey, setShowKey] = useState(false);
+  const [testMode, setTestMode] = useState(false);
   const [status, setStatus] = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     getSettings().then((s) => {
       setApiKey(s.apiKey);
+      setTestMode(s.testMode || false);
       if (s.apiKeyValid) setStatus('valid');
     });
   }, []);
@@ -32,12 +34,18 @@ export function SettingsPage({ onBack }: Props) {
 
     if (response.valid) {
       setStatus('valid');
-      await setSettings({ apiKey: apiKey.trim(), apiKeyValid: true });
+      await setSettings({ apiKey: apiKey.trim(), apiKeyValid: true, testMode });
     } else {
       setStatus('invalid');
       setErrorMsg(response.error || 'Invalid API key');
-      await setSettings({ apiKey: apiKey.trim(), apiKeyValid: false });
+      await setSettings({ apiKey: apiKey.trim(), apiKeyValid: false, testMode });
     }
+  };
+
+  const handleTestModeToggle = async () => {
+    const newTestMode = !testMode;
+    setTestMode(newTestMode);
+    await setSettings({ apiKey, apiKeyValid: status === 'valid', testMode: newTestMode });
   };
 
   return (
@@ -97,6 +105,37 @@ export function SettingsPage({ onBack }: Props) {
         <p style={styles.hintSmall}>
           Uses Gemini 2.0 Flash — free tier: 15 requests/min, 1500 requests/day
         </p>
+      </div>
+
+      <div style={styles.divider} />
+
+      <div style={styles.section}>
+        <label style={styles.label}>Test Mode</label>
+        <div style={styles.toggleRow}>
+          <div>
+            <div style={styles.toggleTitle}>Enable Test Mode</div>
+            <div style={styles.toggleDescription}>
+              Use mock responses instead of API calls to save credits during UI testing
+            </div>
+          </div>
+          <button
+            onClick={handleTestModeToggle}
+            style={{
+              ...styles.toggle,
+              ...(testMode ? styles.toggleActive : {}),
+            }}
+          >
+            <div style={{
+              ...styles.toggleThumb,
+              ...(testMode ? styles.toggleThumbActive : {}),
+            }} />
+          </button>
+        </div>
+        {testMode && (
+          <div style={styles.testModeWarning}>
+            ⚠️ Test mode is active - API calls are disabled
+          </div>
+        )}
       </div>
     </div>
   );
@@ -213,6 +252,67 @@ const styles: Record<string, preact.JSX.CSSProperties> = {
   link: {
     color: '#574964',
     textDecoration: 'underline',
+    fontWeight: '600',
+  },
+  divider: {
+    height: '2px',
+    background: '#C8AAAA',
+    margin: '0 20px',
+  },
+  toggleRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '16px',
+  },
+  toggleTitle: {
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#574964',
+    marginBottom: '4px',
+  },
+  toggleDescription: {
+    fontSize: '12px',
+    color: '#9F8383',
+    lineHeight: '1.5',
+  },
+  toggle: {
+    width: '52px',
+    height: '28px',
+    background: '#C8AAAA',
+    border: 'none',
+    borderRadius: '14px',
+    cursor: 'pointer',
+    position: 'relative' as const,
+    transition: 'all 0.3s ease',
+    flexShrink: 0,
+    padding: 0,
+  },
+  toggleActive: {
+    background: '#574964',
+  },
+  toggleThumb: {
+    width: '22px',
+    height: '22px',
+    background: 'white',
+    borderRadius: '50%',
+    position: 'absolute' as const,
+    top: '3px',
+    left: '3px',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 2px 4px rgba(87, 73, 100, 0.2)',
+  },
+  toggleThumbActive: {
+    left: '27px',
+  },
+  testModeWarning: {
+    marginTop: '12px',
+    padding: '10px 14px',
+    background: '#FFF9E6',
+    border: '2px solid #FFDAB3',
+    borderRadius: '10px',
+    color: '#574964',
+    fontSize: '13px',
     fontWeight: '600',
   },
 };
