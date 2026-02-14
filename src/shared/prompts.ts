@@ -11,7 +11,7 @@ Rules:
 - Do NOT use markdown formatting, bullet points, or headers unless the original had them
 - Output ONLY the rewritten text, nothing else — no preamble, no explanation`;
 
-export function buildPrompt(text: string, persona: Persona): string {
+export function buildSystemPrompt(persona: Persona): string {
   let prompt = SYSTEM_PROMPT;
 
   const hasPresets = persona.tonePresets.length > 0;
@@ -32,7 +32,15 @@ export function buildPrompt(text: string, persona: Persona): string {
     }
   }
 
-  prompt += `\n\nText to rewrite:\n"""\n${text}\n"""`;
-
   return prompt;
+}
+
+export function buildUserMessage(text: string): string {
+  return `Text to rewrite:\n"""\n${text}\n"""`;
+}
+
+export function buildPrompt(text: string, persona: Persona): string {
+  const systemPrompt = buildSystemPrompt(persona);
+  const userMessage = buildUserMessage(text);
+  return `${systemPrompt}\n\n${userMessage}`;
 }

@@ -10,7 +10,7 @@ A Chrome extension that converts the AI-slop your collegues routinely send you i
 
 Not to worry, now you can create Mark's persona and unslop his perfect, corporate buzzword-laden, ChatGPT-flavored messages back to its original glorious form.
 
-Highlight any text on any webpage, pick a persona you've created for your collegues (or use the default "Generic Unslop"), and instantly get a more natural version — powered by Google's Gemini Flash. Create your own Google API key and save it to settings.
+Highlight any text on any webpage, pick a persona you've created for your collegues (or use the default "Generic Unslop"), and instantly get a more natural version — powered by Gemini or OpenRouter. Add your API keys in settings and pick the active provider.
 
 ### Features
 
@@ -18,7 +18,7 @@ Highlight any text on any webpage, pick a persona you've created for your colleg
 - 🚀 **Works Everywhere** — Select text on any webpage (Slack, Teams, Google Docs, emails, etc.)
 - ⚡ **Streaming Responses** — See text appear in real-time as the AI generates it
 - 🎨 **Clean UI** — Light-themed floating toolbar and modal with friendly design (Shadow DOM isolation)
-- 🆓 **Free Tier Friendly** — Uses Gemini 3.0 Flash
+- 🆓 **Free Tier Friendly** — Uses Gemini 3 Flash or OpenRouter (openrouter/auto)
 - 📋 **One-Click Copy** — Instantly copy the humanized text to clipboard
 - 🧪 **Test Mode** — Toggle mock responses for UI testing without consuming API credits
 
@@ -30,7 +30,8 @@ Highlight any text on any webpage, pick a persona you've created for your colleg
 
 - Node.js 18+ and npm
 - Google Chrome (or Chromium-based browser)
-- A free [Google AI Studio](https://aistudio.google.com/apikey) API key
+- A free [Google AI Studio](https://aistudio.google.com/apikey) API key (Gemini)
+- Optional: an [OpenRouter API key](https://openrouter.ai/keys)
 
 ### Installation & Setup
 
@@ -57,23 +58,24 @@ Highlight any text on any webpage, pick a persona you've created for your colleg
    - Click **Load unpacked**
    - Select the `dist/` folder from this project
 
-5. **Configure your API key**
+5. **Configure your API keys**
    - Click the Unslop extension icon in your Chrome toolbar
    - Click the ⚙️ Settings icon
-   - Paste your [Google AI Studio API key](https://aistudio.google.com/apikey)
-   - Click **Validate & Save**
+   - Choose a provider (Gemini, OpenRouter, or Test Mode)
+   - Paste your [Google AI Studio API key](https://aistudio.google.com/apikey) and/or [OpenRouter API key](https://openrouter.ai/keys)
+   - Click **Validate & Save** for each key you want to use
 
 ### 🧪 Test Mode (Development)
 
 Want to test the UI without consuming API credits?
 
 1. Open Settings (⚙️ icon in the extension popup)
-2. Scroll to the **Test Mode** section
-3. Toggle **Enable Test Mode**
+2. Choose **Test Mode** in the provider toggle
+3. A warning appears: "⚠️ Test mode is active - API calls are disabled"
 4. A warning appears: "⚠️ Test mode is active - API calls are disabled"
 
 When test mode is enabled:
-- No API calls are made to Gemini
+- No API calls are made to Gemini or OpenRouter
 - Mock responses stream character-by-character with realistic delays
 - Perfect for testing UI, animations, and extension logic
 - Unlimited requests - no rate limits or costs
@@ -138,6 +140,7 @@ unslop/
 │   │   ├── types.ts                # TypeScript interfaces
 │   │   ├── storage.ts              # Chrome storage wrapper
 │   │   ├── gemini-api.ts           # Gemini API client (streaming)
+│   │   ├── openrouter-api.ts       # OpenRouter API client (streaming)
 │   │   ├── prompts.ts              # Prompt templates
 │   │   └── mock-responses.ts       # Mock streaming for test mode
 │   └── manifest.json               # Chrome extension manifest
@@ -156,7 +159,8 @@ unslop/
 - **TypeScript** — Type safety
 - **Vite** — Fast build tool
 - **CRXJS** — Vite plugin for Chrome extensions (Manifest V3)
-- **Gemini 3.0 Flash** — Google's fast, free-tier-friendly LLM
+- **Gemini 3 Flash** — Google's fast, free-tier-friendly LLM
+- **OpenRouter** — Alternative LLM provider (openrouter/auto)
 
 ### Available Scripts
 
@@ -177,7 +181,7 @@ npm run preview  # Preview production build
 
 - **Shadow DOM isolation** — Content script UI (toolbar + modal) is rendered inside a Shadow DOM to prevent CSS conflicts with host pages
 - **Port-based messaging** — Content script connects to background service worker via `chrome.runtime.connect()` for streaming responses
-- **SSE parsing** — Gemini's `streamGenerateContent?alt=sse` endpoint returns Server-Sent Events which are parsed token-by-token
+- **SSE parsing** — Gemini and OpenRouter streaming endpoints return Server-Sent Events parsed token-by-token
 - **Manifest V3** — Uses modern Chrome extension architecture with service workers instead of background pages
 
 ---
@@ -237,7 +241,7 @@ Then add the label in `TONE_PRESET_LABELS`.
 
 ## 📝 API Usage & Costs
 
-This extension uses **Google Gemini 3.0 Flash** via the Gemini API.
+This extension can use **Google Gemini 3 Flash** via the Gemini API or **OpenRouter** (openrouter/auto).
 
 ---
 
@@ -255,9 +259,9 @@ This extension uses **Google Gemini 3.0 Flash** via the Gemini API.
 - Make sure your API key is set and validated
 
 ### API errors
-- **"No API key configured"** → Go to Settings and add your Gemini API key
+- **"No API key configured"** → Go to Settings and add the provider's API key
 - **"Rate limit exceeded"** → You've hit the 15/min or 1500/day limit. Wait and try again.
-- **"Invalid API key"** → Generate a new key at [Google AI Studio](https://aistudio.google.com/apikey)
+- **"Invalid API key"** → Generate a new key at [Google AI Studio](https://aistudio.google.com/apikey) or [OpenRouter](https://openrouter.ai/keys)
 - **"Connection lost"** → Network issue or service worker restarted. Click Retry.
 
 ### Streaming stops mid-response
@@ -275,6 +279,5 @@ MIT License - see LICENSE file for details
 ## 🙏 Acknowledgments
 
 - Built with [Preact](https://preactjs.com/) and [Vite](https://vitejs.dev/)
-- Uses [Google Gemini API](https://ai.google.dev/gemini-api/docs)
+- Uses [Google Gemini API](https://ai.google.dev/gemini-api/docs) and [OpenRouter](https://openrouter.ai/)
 - Inspired by the need to make AI-generated text sound human again
-

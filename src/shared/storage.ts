@@ -1,4 +1,4 @@
-import { Persona, Settings, DEFAULT_PERSONA } from './types';
+import { Persona, Settings, DEFAULT_PERSONA, Provider } from './types';
 
 const STORAGE_KEYS = {
   PERSONAS: 'personas',
@@ -55,7 +55,34 @@ export async function getPersonaById(id: string): Promise<Persona | undefined> {
 
 export async function getSettings(): Promise<Settings> {
   const result = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
-  return result[STORAGE_KEYS.SETTINGS] as Settings || { apiKey: '', apiKeyValid: false, testMode: false };
+  const stored = result[STORAGE_KEYS.SETTINGS] as Partial<Settings> | undefined;
+  const defaultSettings: Settings = {
+    provider: 'gemini',
+    apiKey: '',
+    apiKeyValid: false,
+    openRouterApiKey: '',
+    openRouterApiKeyValid: false,
+    testMode: false,
+  };
+
+  const settings: Settings = {
+    ...defaultSettings,
+    ...stored,
+  };
+
+  if (!stored || !('provider' in stored)) {
+    let provider: Provider = 'gemini';
+    if (stored?.testMode) {
+      provider = 'test';
+    } else if (stored?.apiKeyValid) {
+      provider = 'gemini';
+    }
+    settings.provider = provider;
+  }
+
+  settings.testMode = settings.provider === 'test';
+
+  return settings;
 }
 
 export async function setSettings(settings: Settings): Promise<void> {

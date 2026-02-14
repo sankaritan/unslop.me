@@ -1,6 +1,7 @@
 import { getSettings, getPersonaById } from '../shared/storage';
-import { buildPrompt } from '../shared/prompts';
+import { buildPrompt, buildSystemPrompt, buildUserMessage } from '../shared/prompts';
 import { validateApiKey, streamGenerate } from '../shared/gemini-api';
+import { validateOpenRouterApiKey, streamGenerateOpenRouter } from '../shared/openrouter-api';
 import { mockStreamResponse } from '../shared/mock-responses';
 import type { BackgroundMessage, ValidateKeyResponse } from '../shared/types';
 
@@ -13,8 +14,7 @@ chrome.runtime.onConnect.addListener((port) => {
       try {
         const settings = await getSettings();
 
-        // Check if test mode is enabled
-        if (settings.testMode) {
+        if (settings.provider === 'test') {
           // Use mock streaming response
           const generator = mockStreamResponse(msg.text);
           for await (const char of generator) {
@@ -31,14 +31,41 @@ chrome.runtime.onConnect.addListener((port) => {
           return;
         }
 
-        if (!settings.apiKey) {
-          port.postMessage({ type: 'STREAM_ERROR', error: 'No API key configured. Click the Unslop extension icon to set one up.' });
-          return;
-        }
-
         const persona = await getPersonaById(msg.personaId);
         if (!persona) {
           port.postMessage({ type: 'STREAM_ERROR', error: 'Persona not found.' });
+          return;
+        }
+
+        if (settings.provider === 'openrouter') {
+          if (!settings.openRouterApiKey) {
+            port.postMessage({ type: 'STREAM_ERROR', error: 'No OpenRouter API key configured. Click the Unslop extension icon to set one up.' });
+            return;
+          }
+
+          const messages = [
+            { role: 'system' as const, content: buildSystemPrompt(persona) },
+            { role: 'user' as const, content: buildUserMessage(msg.text) },
+          ];
+
+          await streamGenerateOpenRouter(
+            settings.openRouterApiKey,
+            messages,
+            (text) => {
+              try { port.postMessage({ type: 'STREAM_CHUNK', text }); } catch { /* port closed */ }
+            },
+            () => {
+              try { port.postMessage({ type: 'STREAM_DONE' }); } catch { /* port closed */ }
+            },
+            (error) => {
+              try { port.postMessage({ type: 'STREAM_ERROR', error }); } catch { /* port closed */ }
+            },
+          );
+          return;
+        }
+
+        if (!settings.apiKey) {
+          port.postMessage({ type: 'STREAM_ERROR', error: 'No Gemini API key configured. Click the Unslop extension icon to set one up.' });
           return;
         }
 
@@ -69,7 +96,11 @@ chrome.runtime.onConnect.addListener((port) => {
 // Handle one-shot messages (key validation)
 chrome.runtime.onMessage.addListener((msg: BackgroundMessage, _sender, sendResponse) => {
   if (msg.type === 'VALIDATE_KEY') {
-    validateApiKey(msg.apiKey).then((result) => {
+    const validationPromise = msg.provider === 'openrouter'
+      ? validateOpenRouterApiKey(msg.apiKey)
+      : validateApiKey(msg.apiKey);
+
+    validationPromise.then((result) => {
       const response: ValidateKeyResponse = {
         type: 'VALIDATE_KEY_RESPONSE',
         valid: result.valid,

@@ -10,6 +10,8 @@ export interface Persona {
 
 export type TonePreset = 'casual' | 'blunt' | 'sarcastic' | 'friendly';
 
+export type Provider = 'gemini' | 'openrouter' | 'test';
+
 export const TONE_PRESET_LABELS: Record<TonePreset, string> = {
   casual: 'Casual',
   blunt: 'Blunt',
@@ -25,8 +27,11 @@ export const TONE_PRESET_DESCRIPTIONS: Record<TonePreset, string> = {
 };
 
 export interface Settings {
+  provider: Provider;
   apiKey: string;
   apiKeyValid: boolean;
+  openRouterApiKey: string;
+  openRouterApiKeyValid: boolean;
   testMode: boolean;
 }
 
@@ -64,6 +69,7 @@ export interface StreamError {
 export interface ValidateKeyRequest {
   type: 'VALIDATE_KEY';
   apiKey: string;
+  provider: 'gemini' | 'openrouter';
 }
 
 export interface ValidateKeyResponse {

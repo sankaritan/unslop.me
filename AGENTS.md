@@ -11,7 +11,7 @@ This guide provides coding agents with essential information about build command
 - **TypeScript** — Strict type safety enabled
 - **Vite + CRXJS** — Fast bundler with Chrome extension plugin
 - **Chrome APIs** — Storage, runtime messaging, content scripts
-- **Gemini 3 Flash Lite** — Google's LLM for text transformation
+- **Gemini 3 Flash** — Google's LLM for text transformation
 
 ## Build, Dev & Test Commands
 

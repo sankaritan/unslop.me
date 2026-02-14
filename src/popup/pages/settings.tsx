@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'preact/hooks';
 import * as preact from 'preact';
-import type { Settings } from '../../shared/types';
+import type { Provider, Settings } from '../../shared/types';
 import { getSettings, setSettings } from '../../shared/storage';
 
 interface Props {
@@ -8,21 +8,40 @@ interface Props {
 }
 
 export function SettingsPage({ onBack }: Props) {
+  const [provider, setProvider] = useState<Provider>('gemini');
   const [apiKey, setApiKey] = useState('');
-  const [showKey, setShowKey] = useState(false);
-  const [testMode, setTestMode] = useState(false);
+  const [openRouterApiKey, setOpenRouterApiKey] = useState('');
+  const [showGeminiKey, setShowGeminiKey] = useState(false);
+  const [showOpenRouterKey, setShowOpenRouterKey] = useState(false);
   const [status, setStatus] = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [openRouterStatus, setOpenRouterStatus] = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
+  const [openRouterErrorMsg, setOpenRouterErrorMsg] = useState('');
 
   useEffect(() => {
     getSettings().then((s) => {
+      setProvider(s.provider || (s.testMode ? 'test' : 'gemini'));
       setApiKey(s.apiKey);
-      setTestMode(s.testMode || false);
+      setOpenRouterApiKey(s.openRouterApiKey || '');
       if (s.apiKeyValid) setStatus('valid');
+      if (s.openRouterApiKeyValid) setOpenRouterStatus('valid');
     });
   }, []);
 
-  const handleValidate = async () => {
+  const persistSettings = async (next: Partial<Settings> = {}) => {
+    const resolvedProvider = next.provider ?? provider;
+    const nextSettings: Settings = {
+      provider: resolvedProvider,
+      apiKey: next.apiKey ?? apiKey,
+      apiKeyValid: next.apiKeyValid ?? status === 'valid',
+      openRouterApiKey: next.openRouterApiKey ?? openRouterApiKey,
+      openRouterApiKeyValid: next.openRouterApiKeyValid ?? openRouterStatus === 'valid',
+      testMode: resolvedProvider === 'test',
+    };
+    await setSettings(nextSettings);
+  };
+
+  const handleValidateGemini = async () => {
     if (!apiKey.trim()) return;
     setStatus('checking');
     setErrorMsg('');
@@ -30,22 +49,43 @@ export function SettingsPage({ onBack }: Props) {
     const response = await chrome.runtime.sendMessage({
       type: 'VALIDATE_KEY',
       apiKey: apiKey.trim(),
+      provider: 'gemini',
     });
 
     if (response.valid) {
       setStatus('valid');
-      await setSettings({ apiKey: apiKey.trim(), apiKeyValid: true, testMode });
+      await persistSettings({ apiKey: apiKey.trim(), apiKeyValid: true });
     } else {
       setStatus('invalid');
       setErrorMsg(response.error || 'Invalid API key');
-      await setSettings({ apiKey: apiKey.trim(), apiKeyValid: false, testMode });
+      await persistSettings({ apiKey: apiKey.trim(), apiKeyValid: false });
     }
   };
 
-  const handleTestModeToggle = async () => {
-    const newTestMode = !testMode;
-    setTestMode(newTestMode);
-    await setSettings({ apiKey, apiKeyValid: status === 'valid', testMode: newTestMode });
+  const handleValidateOpenRouter = async () => {
+    if (!openRouterApiKey.trim()) return;
+    setOpenRouterStatus('checking');
+    setOpenRouterErrorMsg('');
+
+    const response = await chrome.runtime.sendMessage({
+      type: 'VALIDATE_KEY',
+      apiKey: openRouterApiKey.trim(),
+      provider: 'openrouter',
+    });
+
+    if (response.valid) {
+      setOpenRouterStatus('valid');
+      await persistSettings({ openRouterApiKey: openRouterApiKey.trim(), openRouterApiKeyValid: true });
+    } else {
+      setOpenRouterStatus('invalid');
+      setOpenRouterErrorMsg(response.error || 'Invalid API key');
+      await persistSettings({ openRouterApiKey: openRouterApiKey.trim(), openRouterApiKeyValid: false });
+    }
+  };
+
+  const handleProviderChange = async (nextProvider: Provider) => {
+    setProvider(nextProvider);
+    await persistSettings({ provider: nextProvider });
   };
 
   return (
@@ -56,36 +96,76 @@ export function SettingsPage({ onBack }: Props) {
       </div>
 
       <div style={styles.section}>
+        <label style={styles.label}>Provider</label>
+        <div style={styles.providerToggleRow}>
+          <button
+            onClick={() => handleProviderChange('gemini')}
+            style={{
+              ...styles.providerButton,
+              ...(provider === 'gemini' ? styles.providerButtonActive : {}),
+            }}
+          >
+            Gemini
+          </button>
+          <button
+            onClick={() => handleProviderChange('openrouter')}
+            style={{
+              ...styles.providerButton,
+              ...(provider === 'openrouter' ? styles.providerButtonActive : {}),
+            }}
+          >
+            OpenRouter
+          </button>
+          <button
+            onClick={() => handleProviderChange('test')}
+            style={{
+              ...styles.providerButton,
+              ...(provider === 'test' ? styles.providerButtonActive : {}),
+            }}
+          >
+            Test Mode
+          </button>
+        </div>
+        {provider === 'test' && (
+          <div style={styles.testModeWarning}>
+            ⚠️ Test mode is active - API calls are disabled
+          </div>
+        )}
+      </div>
+
+      <div style={styles.divider} />
+
+      <div style={styles.section}>
         <label style={styles.label}>Gemini API Key</label>
         <div style={styles.inputRow}>
           <input
-            type={showKey ? 'text' : 'password'}
+            type={showGeminiKey ? 'text' : 'password'}
             value={apiKey}
             onInput={(e) => {
               setApiKey((e.target as HTMLInputElement).value);
               setStatus('idle');
             }}
-            placeholder="Enter your API key..."
+            placeholder="Enter your Gemini API key..."
             style={styles.input}
           />
-          <button onClick={() => setShowKey(!showKey)} style={styles.toggleBtn}>
-            {showKey ? '🙈' : '👁️'}
+          <button onClick={() => setShowGeminiKey(!showGeminiKey)} style={styles.toggleBtn}>
+            {showGeminiKey ? '🙈' : '👁️'}
           </button>
         </div>
 
         <button
-          onClick={handleValidate}
+          onClick={handleValidateGemini}
           disabled={!apiKey.trim() || status === 'checking'}
           style={{
             ...styles.validateBtn,
             opacity: !apiKey.trim() || status === 'checking' ? 0.5 : 1,
           }}
         >
-          {status === 'checking' ? '⏳ Validating...' : 'Validate & Save'}
+          {status === 'checking' ? '⏳ Validating...' : 'Validate & Save Gemini Key'}
         </button>
 
         {status === 'valid' && (
-          <div style={styles.statusValid}>✅ API key is valid</div>
+          <div style={styles.statusValid}>✅ Gemini API key is valid</div>
         )}
         {status === 'invalid' && (
           <div style={styles.statusInvalid}>❌ {errorMsg}</div>
@@ -103,39 +183,62 @@ export function SettingsPage({ onBack }: Props) {
           </a>
         </p>
         <p style={styles.hintSmall}>
-          Uses Gemini 3.0 Flash — free tier
+          Uses Gemini 3 Flash — free tier
         </p>
       </div>
 
       <div style={styles.divider} />
 
       <div style={styles.section}>
-        <label style={styles.label}>Test Mode</label>
-        <div style={styles.toggleRow}>
-          <div>
-            <div style={styles.toggleTitle}>Enable Test Mode</div>
-            <div style={styles.toggleDescription}>
-              Use mock responses instead of API calls to save credits during UI testing
-            </div>
-          </div>
-          <button
-            onClick={handleTestModeToggle}
-            style={{
-              ...styles.toggle,
-              ...(testMode ? styles.toggleActive : {}),
+        <label style={styles.label}>OpenRouter API Key</label>
+        <div style={styles.inputRow}>
+          <input
+            type={showOpenRouterKey ? 'text' : 'password'}
+            value={openRouterApiKey}
+            onInput={(e) => {
+              setOpenRouterApiKey((e.target as HTMLInputElement).value);
+              setOpenRouterStatus('idle');
             }}
-          >
-            <div style={{
-              ...styles.toggleThumb,
-              ...(testMode ? styles.toggleThumbActive : {}),
-            }} />
+            placeholder="Enter your OpenRouter API key..."
+            style={styles.input}
+          />
+          <button onClick={() => setShowOpenRouterKey(!showOpenRouterKey)} style={styles.toggleBtn}>
+            {showOpenRouterKey ? '🙈' : '👁️'}
           </button>
         </div>
-        {testMode && (
-          <div style={styles.testModeWarning}>
-            ⚠️ Test mode is active - API calls are disabled
-          </div>
+
+        <button
+          onClick={handleValidateOpenRouter}
+          disabled={!openRouterApiKey.trim() || openRouterStatus === 'checking'}
+          style={{
+            ...styles.validateBtn,
+            opacity: !openRouterApiKey.trim() || openRouterStatus === 'checking' ? 0.5 : 1,
+          }}
+        >
+          {openRouterStatus === 'checking' ? '⏳ Validating...' : 'Validate & Save OpenRouter Key'}
+        </button>
+
+        {openRouterStatus === 'valid' && (
+          <div style={styles.statusValid}>✅ OpenRouter API key is valid</div>
         )}
+        {openRouterStatus === 'invalid' && (
+          <div style={styles.statusInvalid}>❌ {openRouterErrorMsg}</div>
+        )}
+
+        <p style={styles.hint}>
+          Get an API key from{' '}
+          <a
+            href="https://openrouter.ai/keys"
+            target="_blank"
+            rel="noopener"
+            style={styles.link}
+          >
+            OpenRouter
+          </a>
+        </p>
+        <p style={styles.hintSmall}>
+          Uses openrouter/auto (free tier available)
+        </p>
       </div>
     </div>
   );
@@ -258,6 +361,28 @@ const styles: Record<string, preact.JSX.CSSProperties> = {
     height: '2px',
     background: '#C8AAAA',
     margin: '0 20px',
+  },
+  providerToggleRow: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '10px',
+  },
+  providerButton: {
+    padding: '10px 12px',
+    borderRadius: '999px',
+    border: '2px solid #C8AAAA',
+    background: '#fff',
+    color: '#574964',
+    fontWeight: '700',
+    fontSize: '12px',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.6px',
+    cursor: 'pointer',
+  },
+  providerButtonActive: {
+    background: '#574964',
+    color: '#fff',
+    borderColor: '#574964',
   },
   toggleRow: {
     display: 'flex',
