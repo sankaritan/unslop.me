@@ -103,7 +103,7 @@ export function SettingsPage({ onBack }: Props) {
           </a>
         </p>
         <p style={styles.hintSmall}>
-          Uses Gemini 2.0 Flash — free tier: 15 requests/min, 1500 requests/day
+          Uses Gemini 3.0 Flash — free tier
         </p>
       </div>
 

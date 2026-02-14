@@ -18,7 +18,7 @@ Highlight any text on any webpage, pick a persona you've created for your colleg
 - 🚀 **Works Everywhere** — Select text on any webpage (Slack, Teams, Google Docs, emails, etc.)
 - ⚡ **Streaming Responses** — See text appear in real-time as the AI generates it
 - 🎨 **Clean UI** — Light-themed floating toolbar and modal with friendly design (Shadow DOM isolation)
-- 🆓 **Free Tier Friendly** — Uses Gemini 2.0 Flash (15 requests/min, 1500/day on free tier)
+- 🆓 **Free Tier Friendly** — Uses Gemini 3.0 Flash
 - 📋 **One-Click Copy** — Instantly copy the humanized text to clipboard
 - 🧪 **Test Mode** — Toggle mock responses for UI testing without consuming API credits
 
@@ -156,7 +156,7 @@ unslop/
 - **TypeScript** — Type safety
 - **Vite** — Fast build tool
 - **CRXJS** — Vite plugin for Chrome extensions (Manifest V3)
-- **Gemini 2.0 Flash** — Google's fast, free-tier-friendly LLM
+- **Gemini 3.0 Flash** — Google's fast, free-tier-friendly LLM
 
 ### Available Scripts
 
